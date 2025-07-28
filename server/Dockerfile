@@ -17,7 +17,7 @@ COPY server/ .
 
 # Expose the port the Node.js server runs on
 # Assuming your Node.js server listens on port 5000. Adjust if different.
-EXPOSE 5000
+EXPOSE 3000
 
 # Define the command to run your Node.js server
 # This assumes you have a "start" script defined in your server's package.json

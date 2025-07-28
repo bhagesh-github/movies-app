@@ -12,13 +12,13 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id') // Jenkins credential ID for AWS Access Key ID
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key') // Jenkins credential ID for AWS Secret Access Key
-        ECR_SERVER_REPOSITORY_URI = 'your-ecr-server-repository-uri' // e.g., 123456789012.dkr.ecr.your-aws-region.amazonaws.com/movies-app-server
-        ECR_CLIENT_REPOSITORY_URI = 'your-ecr-client-repository-uri' // e.g., 123456789012.dkr.ecr.your-aws-region.amazonaws.com/movies-app-client
-        AWS_REGION = 'your-aws-region' // e.g., us-east-1
+        ECR_SERVER_REPOSITORY_URI = '820580909670.dkr.ecr.us-east-1.amazonaws.com/movies-app-server' // e.g., 123456789012.dkr.ecr.your-aws-region.amazonaws.com/movies-app-server
+        ECR_CLIENT_REPOSITORY_URI = '820580909670.dkr.ecr.us-east-1.amazonaws.com/movies-app-client' // e.g., 123456789012.dkr.ecr.your-aws-region.amazonaws.com/movies-app-client
+        AWS_REGION = 'us-east-1' // e.g., us-east-1
 
         // App Host details
-        APP_HOST_IP = 'your-app-host-ip' // e.g., 192.168.1.100 or your.app.domain.com
-        APP_HOST_USER = 'root' // User with SSH access and Docker permissions on the app host
+        APP_HOST_IP = '10.100.3.90' // e.g., 192.168.1.100 or your.app.domain.com
+        APP_HOST_USER = 'ubuntu' // User with SSH access and Docker permissions on the app host
         APP_HOST_SSH_CREDENTIAL_ID = 'app-host-ssh-key' // Jenkins credential ID for SSH private key (Username with private key)
 
         // Remote MongoDB URI for the server to connect to
@@ -130,7 +130,7 @@ pipeline {
                             # --name: assign a name to the container
                             # -p: map host port 5000 to container port 5000
                             # -e MONGO_URI: pass the MongoDB connection string as an environment variable
-                            docker run -d --name movies-server -p 5000:5000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME}
+                            docker run -d --name movies-server -p 5000:3000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME}
                             echo "Server deployed."
 
                             # --- Deploy Client Container ---
