@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # MongoDB Database Service
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017" # Map host port 27017 to container port 27017
+    volumes:
+      - mongo_data:/data/db # Persist MongoDB data to a named volume
+    networks:
+      - app-network # Connect to the custom network
+
+  # Node.js Server Service
+  server:
+    build:
+      context: . # Build context is the root directory
+      dockerfile: server/Dockerfile # Path to the server Dockerfile
+    container_name: movies-server
+    ports:
+      - "5000:5000" # Map host port 5000 to container port 5000
+    environment:
+      # Environment variable for MongoDB connection string
+      # Ensure your Node.js app uses this variable to connect to MongoDB
+      MONGO_URI: mongodb://mongodb:27017/moviesdb
+      # Add any other environment variables your server needs (e.g., API keys)
+    depends_on:
+      - mongodb # Ensure MongoDB starts before the server
+    networks:
+      - app-network # Connect to the custom network
+
+  # React Client Service
+  client:
+    build:
+      context: . # Build context is the root directory
+      dockerfile: client/Dockerfile # Path to the client Dockerfile
+    container_name: movies-client
+    ports:
+      - "80:80" # Map host port 80 to container port 80
+    depends_on:
+      - server # Ensure the server is running before the client (optional, but good practice if client needs server on startup)
+    networks:
+      - app-network # Connect to the custom network
+
+# Define named volumes for data persistence
+volumes:
+  mongo_data:
+
+# Define a custom network for inter-service communication
+networks:
+  app-network:
+    driver: bridge
