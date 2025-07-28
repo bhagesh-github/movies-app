@@ -41,7 +41,7 @@ pipeline {
                     // Checkout the Git repository.
                     // Replace 'your_repository_url_here' with the URL of your GitHub repository.
                     // Replace 'main' with your default branch name if it's different (e.g., 'master').
-                    git branch: 'main', url: 'https://github.com/bhagesh-github/movies-app.git'
+                    git branch: 'master', url: 'https://github.com/bhagesh-github/movies-app.git'
                 }
             }
         }
