@@ -5,13 +5,13 @@ FROM node:20-alpine as build
 WORKDIR /app/client
 
 # Copy package.json and package-lock.json for dependency installation
-COPY client/package*.json ./
+COPY package*.json ./
 
 # Install client-side application dependencies
 RUN npm install
 
 # Copy the rest of the client application code
-COPY client/ .
+COPY . .
 
 # Build the React application for production
 # This command assumes your client's package.json has a "build" script

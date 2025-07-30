@@ -6,14 +6,14 @@ WORKDIR /app/server
 
 # Copy package.json and package-lock.json (if available) for dependency installation
 # This leverages Docker's layer caching for faster builds
-COPY server/package*.json ./
+COPY package*.json ./
 
 # Install server-side application dependencies
 # The --omit=dev flag ensures that development dependencies are not included in the production image
 RUN npm install --omit=dev
 
 # Copy the rest of the server application code
-COPY server/ .
+COPY . .
 
 # Expose the port the Node.js server runs on
 # Assuming your Node.js server listens on port 5000. Adjust if different.
