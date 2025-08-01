@@ -17,12 +17,12 @@ pipeline {
         AWS_REGION = 'us-east-1' // e.g., us-east-1
 
         // App Host details
-        APP_HOST_IP = '10.100.3.49' // e.g., 192.168.1.100 or your.app.domain.com
+        APP_HOST_IP = '10.100.3.172' // e.g., 192.168.1.100 or your.app.domain.com
         APP_HOST_USER = 'ubuntu' // User with SSH access and Docker permissions on the app host
         APP_HOST_SSH_CREDENTIAL_ID = 'app-host-ssh-key' // Jenkins credential ID for SSH private key (Username with private key)
 
         // Remote MongoDB URI for the server to connect to
-        MONGO_DB_URI_REMOTE = 'mongodb://10.100.3.49:27017/cinema' // Replace with your actual remote MongoDB URI
+        MONGO_DB_URI_REMOTE = 'mongodb://10.100.3.172:27017/cinema' // Replace with your actual remote MongoDB URI
 
         // Derived image names
         SERVER_IMAGE_NAME = "${ECR_SERVER_REPOSITORY_URI}:latest"
@@ -86,7 +86,7 @@ pipeline {
                         // The build context needs to be the root of the project to access the 'nginx' folder
                         // as specified in the client's Dockerfile.
                         // So, we use '..' as the build context and specify the Dockerfile path relative to it.
-                        sh "docker build -t ${CLIENT_IMAGE_NAME} -f Dockerfile .."
+                        sh "docker build -t ${CLIENT_IMAGE_NAME} -f Dockerfile ."
 
                         // Push the built Docker image to the ECR repository.
                         sh "docker push ${CLIENT_IMAGE_NAME}"
