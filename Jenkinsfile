@@ -149,7 +149,7 @@ pipeline {
                             echo "Client deployed."
 
                             echo "Deployment process completed on ${APP_HOST_IP}"
-                        EOF
+        EOF
                     """
                 }
             }
