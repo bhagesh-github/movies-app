@@ -113,25 +113,25 @@ pipeline {
                             echo "ECR login complete on app host.";
 
                             echo "Stopping and removing any existing server container (movies-server)...";
-                            docker stop movies-server || true;
-                            docker rm movies-server || true;
+                            sudo docker stop movies-server || true;
+                            sudo docker rm movies-server || true;
 
                             echo "Pulling latest server image: ${SERVER_IMAGE_NAME}...";
-                            docker pull ${SERVER_IMAGE_NAME};
+                            sudo docker pull ${SERVER_IMAGE_NAME};
 
                             echo "Running new server container (movies-server) on port 5000...";
-                            docker run -d --name movies-server -p 5000:3000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME};
+                            sudo docker run -d --name movies-server -p 5000:3000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME};
                             echo "Server deployed.";
 
                             echo "Stopping and removing any existing client container (movies-client)...";
-                            docker stop movies-client || true;
-                            docker rm movies-client || true;
+                            sudo docker stop movies-client || true;
+                            sudo docker rm movies-client || true;
 
                             echo "Pulling latest client image: ${CLIENT_IMAGE_NAME}...";
-                            docker pull ${CLIENT_IMAGE_NAME};
+                            sudo docker pull ${CLIENT_IMAGE_NAME};
 
                             echo "Running new client container (movies-client) on port 80...";
-                            docker run -d --name movies-client -p 80:80 ${CLIENT_IMAGE_NAME};
+                            sudo docker run -d --name movies-client -p 80:80 ${CLIENT_IMAGE_NAME};
                             echo "Client deployed.";
 
                             echo "Deployment process completed on ${APP_HOST_IP}";
