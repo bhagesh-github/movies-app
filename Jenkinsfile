@@ -104,52 +104,38 @@ pipeline {
                 sshagent(credentials: [APP_HOST_SSH_CREDENTIAL_ID]) {
                     // Execute shell commands on the remote application host
                     sh """
-                        # Connect to the application host and execute commands
-                        # -o StrictHostKeyChecking=no is used to bypass host key checking for initial connection.
-                        # For production, it's recommended to pre-add host keys to known_hosts.
-                        ssh -o StrictHostKeyChecking=no ${APP_HOST_USER}@${APP_HOST_IP} << 'EOF'
-                            echo "Successfully logged into app host: ${APP_HOST_IP}"
+                        ssh -o StrictHostKeyChecking=no ${APP_HOST_USER}@${APP_HOST_IP} '
+                            echo "Successfully logged into app host: ${APP_HOST_IP}";
 
-                            # Authenticate Docker with ECR on the app host
-                            echo "Logging into ECR on app host to pull images..."
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_SERVER_REPOSITORY_URI}
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_CLIENT_REPOSITORY_URI}
-                            echo "ECR login complete on app host."
+                            echo "Logging into ECR on app host to pull images...";
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_SERVER_REPOSITORY_URI};
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_CLIENT_REPOSITORY_URI};
+                            echo "ECR login complete on app host.";
 
-                            # --- Deploy Server Container ---
-                            echo "Stopping and removing any existing server container (movies-server)..."
-                            # '|| true' ensures the command doesn't fail if the container doesn't exist
-                            docker stop movies-server || true
-                            docker rm movies-server || true
+                            echo "Stopping and removing any existing server container (movies-server)...";
+                            docker stop movies-server || true;
+                            docker rm movies-server || true;
 
-                            echo "Pulling latest server image: ${SERVER_IMAGE_NAME}..."
-                            docker pull ${SERVER_IMAGE_NAME}
+                            echo "Pulling latest server image: ${SERVER_IMAGE_NAME}...";
+                            docker pull ${SERVER_IMAGE_NAME};
 
-                            echo "Running new server container (movies-server) on port 5000..."
-                            # -d: run in detached mode
-                            # --name: assign a name to the container
-                            # -p: map host port 5000 to container port 5000
-                            # -e MONGO_URI: pass the MongoDB connection string as an environment variable
-                            docker run -d --name movies-server -p 5000:3000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME}
-                            echo "Server deployed."
+                            echo "Running new server container (movies-server) on port 5000...";
+                            docker run -d --name movies-server -p 5000:3000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME};
+                            echo "Server deployed.";
 
-                            # --- Deploy Client Container ---
-                            echo "Stopping and removing any existing client container (movies-client)..."
-                            docker stop movies-client || true
-                            docker rm movies-client || true
+                            echo "Stopping and removing any existing client container (movies-client)...";
+                            docker stop movies-client || true;
+                            docker rm movies-client || true;
 
-                            echo "Pulling latest client image: ${CLIENT_IMAGE_NAME}..."
-                            docker pull ${CLIENT_IMAGE_NAME}
+                            echo "Pulling latest client image: ${CLIENT_IMAGE_NAME}...";
+                            docker pull ${CLIENT_IMAGE_NAME};
 
-                            echo "Running new client container (movies-client) on port 80..."
-                            # -d: run in detached mode
-                            # --name: assign a name to the container
-                            # -p: map host port 80 to container port 80
-                            docker run -d --name movies-client -p 80:80 ${CLIENT_IMAGE_NAME}
-                            echo "Client deployed."
+                            echo "Running new client container (movies-client) on port 80...";
+                            docker run -d --name movies-client -p 80:80 ${CLIENT_IMAGE_NAME};
+                            echo "Client deployed.";
 
-                            echo "Deployment process completed on ${APP_HOST_IP}"
-        EOF
+                            echo "Deployment process completed on ${APP_HOST_IP}";
+                        '
                     """
                 }
             }
