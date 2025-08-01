@@ -1,5 +1,5 @@
 # Stage 1: Build the React application
-FROM node:20-alpine as build
+FROM node:20-alpine AS build
 
 # Set the working directory inside the container for the client application
 WORKDIR /app/client
@@ -25,7 +25,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy custom Nginx configuration
 # This configuration tells Nginx to serve the static files from the build directory
-COPY ../nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built React application from the build stage
 COPY --from=build /app/client/build /usr/share/nginx/html
