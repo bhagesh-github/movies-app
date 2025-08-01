@@ -13,6 +13,11 @@ RUN npm install
 # Copy the rest of the client application code
 COPY . .
 
+# Set NODE_OPTIONS to use the legacy OpenSSL provider.
+# This is a critical fix for the "digital envelope routines::unsupported" error
+# which occurs with newer Node.js versions and older build dependencies.
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Build the React application for production
 # This command assumes your client's package.json has a "build" script
 RUN npm run build
