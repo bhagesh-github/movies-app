@@ -100,42 +100,33 @@ pipeline {
         // pulls the new images, and runs fresh containers for both server and client.
         stage('Deploy to App Host') {
             steps {
-                // Use sshagent to securely manage SSH credentials
                 sshagent(credentials: [APP_HOST_SSH_CREDENTIAL_ID]) {
-                    // Execute shell commands on the remote application host
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${APP_HOST_USER}@${APP_HOST_IP} '
-                            echo "Successfully logged into app host: ${APP_HOST_IP}";
+                        ssh -o StrictHostKeyChecking=no ${APP_HOST_USER}@${APP_HOST_IP} << 'EOF'
+                            echo "Logging into ECR on app host..."
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_SERVER_REPOSITORY_URI}
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_CLIENT_REPOSITORY_URI}
 
-                            echo "Logging into ECR on app host to pull images...";
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_SERVER_REPOSITORY_URI};
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_CLIENT_REPOSITORY_URI};
-                            echo "ECR login complete on app host.";
+                            echo "Stopping and removing existing server container..."
+                            docker stop movies-server || true
+                            docker rm movies-server || true
 
-                            echo "Stopping and removing any existing server container (movies-server)...";
-                            sudo docker stop movies-server || true;
-                            sudo docker rm movies-server || true;
+                            echo "Pulling latest server image..."
+                            docker pull ${SERVER_IMAGE_NAME}
 
-                            echo "Pulling latest server image: ${SERVER_IMAGE_NAME}...";
-                            sudo docker pull ${SERVER_IMAGE_NAME};
+                            echo "Running new server container..."
+                            docker run -d --name movies-server -p 5000:5000 -e MONGO_DB_URI=${MONGO_DB_URI_REMOTE} ${SERVER_IMAGE_NAME}
 
-                            echo "Running new server container (movies-server) on port 5000...";
-                            sudo docker run -d --name movies-server -p 5000:3000 -e MONGO_URI="${MONGO_DB_URI_REMOTE}" ${SERVER_IMAGE_NAME};
-                            echo "Server deployed.";
+                            echo "Stopping and removing existing client container..."
+                            docker stop movies-client || true
+                            docker rm movies-client || true
 
-                            echo "Stopping and removing any existing client container (movies-client)...";
-                            sudo docker stop movies-client || true;
-                            sudo docker rm movies-client || true;
+                            echo "Pulling latest client image..."
+                            docker pull ${CLIENT_IMAGE_NAME}
 
-                            echo "Pulling latest client image: ${CLIENT_IMAGE_NAME}...";
-                            sudo docker pull ${CLIENT_IMAGE_NAME};
-
-                            echo "Running new client container (movies-client) on port 80...";
-                            sudo docker run -d --name movies-client -p 80:80 ${CLIENT_IMAGE_NAME};
-                            echo "Client deployed.";
-
-                            echo "Deployment process completed on ${APP_HOST_IP}";
-                        '
+                            echo "Running new client container..."
+                            docker run -d --name movies-client -p 80:80 ${CLIENT_IMAGE_NAME}
+                        EOF
                     """
                 }
             }
